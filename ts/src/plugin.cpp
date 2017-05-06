@@ -49,9 +49,9 @@ static float* floatsSample[MAX_CHANNELS];
 
 #define PIPE_NAME L"\\\\.\\pipe\\task_force_radio_pipe"
 //#define PIPE_NAME L"\\\\.\\pipe\\task_force_radio_pipe_debug"
-#define PLUGIN_NAME "task_force_radio"
-#define PLUGIN_NAME_x32 "task_force_radio_win32"
-#define PLUGIN_NAME_x64 "task_force_radio_win64"
+#define PLUGIN_NAME "task_force_radio_fivem"
+#define PLUGIN_NAME_x32 "task_force_radio_fivem_win32"
+#define PLUGIN_NAME_x64 "task_force_radio_fivem_win64"
 #define MILLIS_TO_EXPIRE 4000  // 4 seconds without updates of client position to expire
 
 #define DD_MIN_DISTANCE 70
@@ -70,9 +70,8 @@ float distance(TS3_VECTOR from, TS3_VECTOR to)
 #define CANT_SPEAK_DISTANCE 5
 #define SPEAKER_GAIN 4
 
-#define PIWIK_URL L"nkey.piwik.pro"
 #define UPDATE_URL L"raw.github.com"
-#define UPDATE_FILE L"/michail-nikolaev/task-force-arma-3-radio/master/current_version.txt"
+#define UPDATE_FILE L"/timnboys/task-force-fivem-radio/master/current_version.txt"
 
 #define INVALID_DATA_FRAME 9999
 
@@ -117,38 +116,6 @@ inline float parseArmaNumber(std::string &armaNumber)
 inline int parseArmaNumberToInt(std::string &armaNumber)
 {
 	return (int)std::round(parseArmaNumber(armaNumber));
-}
-	
-
-std::string piwikUrl;
-DWORD WINAPI trackPiwikThread(LPVOID lpParam)
-{
-	DWORD dwBytes;
-	DWORD r = 0;	
-	char ch;
-	if (!InternetGetConnectedState(&r, 0)) return -1;
-	if (r & INTERNET_CONNECTION_OFFLINE) return -1;
-
-	HINTERNET Initialize = InternetOpen(L"TFAR", INTERNET_OPEN_TYPE_PRECONFIG, NULL, NULL, 0);
-	HINTERNET Connection = InternetConnect(Initialize, PIWIK_URL, INTERNET_DEFAULT_HTTP_PORT, NULL, NULL, INTERNET_SERVICE_HTTP, 0, 0);
-	HINTERNET File = HttpOpenRequestA(Connection, NULL, piwikUrl.c_str(), NULL, NULL, NULL, 0, 0);
-	if (HttpSendRequest(File, NULL, 0, NULL, 0))
-	{
-		while (InternetReadFile(File, &ch, 1, &dwBytes))
-		{
-			if (dwBytes != 1) break;
-		}
-	}
-	InternetCloseHandle(File);
-	InternetCloseHandle(Connection);
-	InternetCloseHandle(Initialize);
-	return 0;
-}
-
-void trackPiwik(std::string url)
-{
-	piwikUrl = url;
-	CreateThread(NULL, 0, trackPiwikThread, NULL, 0, NULL);
 }
 
 
@@ -471,7 +438,7 @@ void log(const char* message, LogLevel level = LogLevel_DEVEL)
 #ifndef DEBUG_MOD_ENABLED
 	if (level != LogLevel_DEVEL && level != LogLevel_DEBUG)
 #endif
-		ts3Functions.logMessage(message, level, "task_force_radio", 141);
+		ts3Functions.logMessage(message, level, "task_force_radio_fivem", 141);
 }
 
 void log_string(std::string message, LogLevel level = LogLevel_DEVEL)
@@ -487,7 +454,7 @@ void log(char* message, DWORD errorCode, LogLevel level = LogLevel_INFO)
 #ifndef DEBUG_MOD_ENABLED
 	if (level != LogLevel_DEVEL && level != LogLevel_DEBUG)
 #endif
-		ts3Functions.logMessage(output.c_str(), level, "task_force_radio", 141);
+		ts3Functions.logMessage(output.c_str(), level, "task_force_radio_fivem", 141);
 	ts3Functions.freeMemory(errorBuffer);
 }
 
@@ -1311,7 +1278,7 @@ void updateUserStatusInfo(bool pluginEnabled) {
 	if (pluginEnabled)
 		result = getConnectionStatusInfo(pipeConnected, inGame, true);
 	else
-		result = "[B]Task Force Radio Plugin Disabled[/B]";
+		result = "[B]Task Force Radio For FiveM Plugin Disabled[/B]";
 	setMetaData(result);
 }
 
@@ -1969,7 +1936,7 @@ DWORD WINAPI UpdateThread(LPVOID lpParam)
 {
 	if (isUpdateAvaible())
 	{
-		MessageBox(NULL, L"New version of Task Force Arrowhead Radio is available. Check radio.task-force.ru/en", L"Task Force Arrowhead Radio Update", MB_OK);
+		MessageBox(NULL, L"New version of Task Force Radio For FiveM is available. Check https://github.com/timnboys/task-force-arma-3-radio", L"Task Force Radio For FiveM Update", MB_OK);
 	}
 	return 0;
 }
@@ -2072,10 +2039,10 @@ DWORD WINAPI PipeThread(LPVOID lpParam)
 					const char* output = result.c_str();
 					DWORD written = 0;
 					if (WriteFile(pipe, output, (DWORD)result.length() + 1, &written, NULL)) {
-						log_string("Info to ARMA send", LogLevel_DEBUG);
+						log_string("Info to FiveM send", LogLevel_DEBUG);
 					}
 					else {
-						log_string("Can't send info to ARMA", LogLevel_ERROR);
+						log_string("Can't send info to FiveM", LogLevel_ERROR);
 					}
 				}
 				else {
@@ -2126,7 +2093,7 @@ DWORD WINAPI PipeThread(LPVOID lpParam)
 
 /* Unique name identifying this plugin */
 const char* ts3plugin_name() {
-	return "Task Force Arma 3 Radio";
+	return "Task Force FiveM Radio";
 }
 
 /* Plugin version */
@@ -2175,13 +2142,13 @@ int ts3plugin_apiVersion() {
 /* Plugin author */
 const char* ts3plugin_author() {
 	/* If you want to use wchar_t, see ts3plugin_name() on how to use */
-	return "[TF]Nkey";
+	return "[TF]timnboys";
 }
 
 /* Plugin description */
 const char* ts3plugin_description() {
 	/* If you want to use wchar_t, see ts3plugin_name() on how to use */
-	return "Radio Addon for Arma 3";
+	return "Radio Addon for FiveM";
 }
 
 /* Set TeamSpeak 3 callback functions */
